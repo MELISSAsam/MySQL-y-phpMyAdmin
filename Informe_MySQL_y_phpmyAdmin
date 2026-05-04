@@ -1,0 +1,65 @@
+# Informe de Práctica: Interconexión de Contenedores con MySQL y phpMyAdmin
+
+1. Titulo
+Comunicación entre Base de Datos MySQL y Gestión Gráfica con phpMyAdmin.
+
+## 2. Tiempo de duración
+40 minutos.
+
+## 3. Fundamentos:
+En el entorno de Killercoda, el uso de contenedores aislados es la base para entender la arquitectura de microservicios. Docker permite que cada servicio (como una base de datos o una interfaz web) corra de forma independiente, pero para que funcionen como un sistema unido, deben compartir una red lógica. Al crear una red personalizada, habilitamos la resolución de nombres interna; esto permite que el contenedor de phpMyAdmin localice al contenedor de MySQL simplemente usando su nombre (`servidor_mysql`) en lugar de una dirección IP, la cual podría cambiar cada vez que el contenedor se reinicia. Esta práctica simula un entorno de producción donde el almacenamiento de datos está separado de la capa de presentación.
+
+## 4. Conocimientos previos.
+- Comandos de Docker CLI en entornos Linux (Killercoda).
+- Concepto de redes virtuales (Bridge networks).
+- Configuración de variables de entorno (`-e`).
+- Administración básica de bases de datos relacionales.
+
+## 5. Objetivos a alcanzar
+- Crear una red personalizada para aislar el tráfico de la base de datos.
+- Desplegar un servidor MySQL funcional en el puerto interno.
+- Vincular phpMyAdmin como interfaz gráfica mediante la red virtual.
+- Crear y gestionar bases de datos desde el navegador usando el tráfico expuesto por Killercoda.
+
+## 6. Equipo necesario:
+- Entorno interactivo de Killercoda (Ubuntu 22.04).
+- Navegador Web (Google Chrome o Firefox).
+- Imágenes oficiales de Docker Hub: `mysql:8.0` y `phpmyadmin`.
+
+## 7. Material de apoyo.
+- Documentación oficial de Docker Networking.
+- Guía de inicio rápido de phpMyAdmin para Docker.
+- Repositorio de referencia: https://github.com/maguaman2/informe-tendencias
+- Gemini
+
+## 8. Procedimiento
+
+**Paso 1: Creación de la infraestructura de red**
+Se ejecutó el comando para crear una red privada que servirá de puente entre los servicios.
+```bash
+docker network create mi_red_db
+
+**Paso 2: Despliegue del motor de base de datos**
+Se lanzó el contenedor de MySQL configurando la contraseña del superusuario (root).
+
+docker run -d --name servidor_mysql --network mi_red_db -e MYSQL_ROOT_PASSWORD=admin1234 mysql:8.0
+
+**Paso 3:  Despliegue de la interfaz web** 
+Se conectó phpMyAdmin a la misma red, apuntando al host de MySQL y mapeando el puerto 8080.
+docker run -d --name mi_phpmyadmin --network mi_red_db -e PMA_HOST=servidor_mysql -p 8080:80 phpmyadmin
+
+**Paso 4:  Validación en el navegador**
+Se accedió al puerto 8080 de Killercoda, se inició sesión y se creó la base de datos db_prueba.
+
+## 9. Resultados esperados:
+Se logró una integración exitosa entre ambos contenedores. La prueba definitiva fue la creación de la base de datos db_prueba desde la interfaz gráfica, lo cual confirma que phpMyAdmin pudo autenticarse correctamente en el contenedor de MySQL a través de la red virtual creada.
+
+## 10. Bibliografía
+Docker Inc. (2026). Docker Network Commands. Docker Docs.
+
+MySQL. (2026). MySQL 8.0 Reference Manual.
+
+phpMyAdmin Team. (2026). Configuring phpMyAdmin for Docker.
+
+
+
